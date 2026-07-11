@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "FocusGuard Distraction-Free Mode",
+  "version": "0.1.0",
+  "description": "Turns distracting sites into intentional tools by hiding algorithmic feeds and recommendations.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.reddit.com/*",
+    "*://*.x.com/*",
+    "*://*.twitter.com/*",
+    "*://*.linkedin.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*",
+        "*://*.reddit.com/*",
+        "*://*.x.com/*",
+        "*://*.twitter.com/*",
+        "*://*.linkedin.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "options_page": "options.html"
+}
