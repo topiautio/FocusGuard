@@ -1,0 +1,24 @@
+allow_start = "15:00"
+allow_end = "22:00"
+
+notifications = true
+logging = true
+
+blocklist = [
+  "x.com",
+  "twitter.com",
+  "reddit.com",
+  "old.reddit.com",
+  "www.reddit.com",
+  "youtube.com",
+  "www.youtube.com",
+  "youtu.be",
+  "instagram.com",
+  "facebook.com",
+  "threads.net",
+  "tiktok.com"
+]
+
+whitelist = [
+  "music.youtube.com"
+]
