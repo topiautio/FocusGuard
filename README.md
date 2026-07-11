@@ -71,14 +71,15 @@ No. FocusGuard stores only local logs and local aggregate state.
 
 ## Development
 
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for setup and verification instructions.
+
+Quick verification:
+
 ```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install -e '.[dev]' || pip install -e . pytest ruff black
-pytest
-ruff check .
-black --check .
+make verify
 ```
+
+See also [AGENTS.md](AGENTS.md) for rules when working with AI coding agents.
 
 ## License
 
