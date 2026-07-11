@@ -7,6 +7,5 @@ STATE_DIR = Path("/var/lib/focusguard")
 LOG_DIR = Path("/var/log/focusguard")
 LOG_PATH = LOG_DIR / "focusguard.log"
 STATE_PATH = STATE_DIR / "state.json"
-RUN_DIR = Path("/run/focusguard")
 DNSMASQ_CONF = Path("/etc/NetworkManager/dnsmasq.d/focusguard.conf")
 NFT_TABLE_FILE = Path("/etc/nftables.d/focusguard.nft")

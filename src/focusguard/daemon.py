@@ -5,7 +5,10 @@ from __future__ import annotations
 import logging
 import signal
 import subprocess
+import sys
 import time
+
+from pathlib import Path
 
 from .config import ConfigError, load_config
 from .nft import disable_nft_rules, install_nft_rules, write_dnsmasq_config
@@ -32,14 +35,22 @@ def _signal(signum: int, _frame: object) -> None:
         _RELOAD = True
 
 
-def setup_logging() -> None:
-    """Configure file logging."""
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    logging.basicConfig(
-        filename=LOG_PATH,
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-    )
+def setup_logging(log_path: str | None = None) -> None:
+    """Configure file logging. Falls back to stderr on permission error (for non-root test/launch)."""
+    target = log_path or str(LOG_PATH)
+    try:
+        Path(target).parent.mkdir(parents=True, exist_ok=True)
+        logging.basicConfig(
+            filename=target,
+            level=logging.INFO,
+            format="%(asctime)s %(levelname)s %(message)s",
+        )
+    except (PermissionError, OSError):
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s %(levelname)s %(message)s",
+            handlers=[logging.StreamHandler(sys.stderr)],
+        )
 
 
 def restart_networkmanager() -> None:
@@ -89,6 +100,9 @@ def main() -> int:
         except ConfigError as exc:
             logging.error("configuration error: %s", exc)
             time.sleep(30)
+        except PermissionError as exc:
+            logging.error("daemon error: %s", exc)
+            time.sleep(10)
         except Exception as exc:  # noqa: BLE001
             logging.exception("daemon error: %s", exc)
             time.sleep(10)

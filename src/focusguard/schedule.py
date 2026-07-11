@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
-from zoneinfo import ZoneInfo
 
 
 @dataclass(frozen=True)
@@ -41,4 +40,4 @@ def schedule_state(now: datetime, start: time, end: time) -> ScheduleState:
 
 def local_now() -> datetime:
     """Return the current local time."""
-    return datetime.now().astimezone(ZoneInfo("localtime"))
+    return datetime.now().astimezone()
