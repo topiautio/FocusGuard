@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FocusGuard Settings</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 52rem; color: #172033; }
+      h1 { margin-bottom: 0.25rem; }
+      .site { border: 1px solid #d8dee9; border-radius: 0.75rem; padding: 1rem; margin: 1rem 0; }
+      label { display: flex; gap: 0.75rem; align-items: flex-start; margin: 0.75rem 0; }
+      small { display: block; color: #5d6677; }
+      .status { min-height: 1.5rem; color: #116329; }
+    </style>
+  </head>
+  <body>
+    <h1>FocusGuard Distraction-Free Mode</h1>
+    <p>Choose which algorithmic surfaces to hide while preserving direct navigation, search, subscriptions, and bookmarked pages.</p>
+    <form id="settings-form"></form>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <script src="options.js"></script>
+  </body>
+</html>

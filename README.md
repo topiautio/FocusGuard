@@ -83,3 +83,17 @@ black --check .
 ## License
 
 MIT
+
+## Browser extension: Distraction-Free Mode
+
+FocusGuard also includes an optional Manifest V3 browser extension in `extension/` that turns distracting websites into intentional tools instead of blocking them entirely. It hides algorithmic feeds, recommendations, and infinite-scroll entry points on YouTube, Reddit, X/Twitter, and LinkedIn while preserving direct links, search, subscriptions/following, saved pages, profiles, jobs, messaging, playlists, and embedded videos.
+
+Build and load the extension:
+
+```bash
+cd extension
+npm install
+npm run build
+```
+
+Then load `extension/dist/` as an unpacked extension in a Chromium-compatible browser. Per-site controls are available from the extension options page.

@@ -1,0 +1,15 @@
+{
+  "name": "focusguard-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FocusGuard distraction-free browser extension",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit && node build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "esbuild": "^0.25.0"
+  }
+}
