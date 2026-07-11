@@ -7,7 +7,6 @@ import signal
 import subprocess
 import sys
 import time
-
 from pathlib import Path
 
 from .config import ConfigError, load_config
@@ -15,7 +14,6 @@ from .nft import disable_nft_rules, install_nft_rules, write_dnsmasq_config
 from .paths import (
     CONFIG_PATH,
     DNSMASQ_CONF,
-    LOG_DIR,
     LOG_PATH,
     NFT_TABLE_FILE,
     STATE_PATH,
@@ -36,7 +34,10 @@ def _signal(signum: int, _frame: object) -> None:
 
 
 def setup_logging(log_path: str | None = None) -> None:
-    """Configure file logging. Falls back to stderr on permission error (for non-root test/launch)."""
+    """Configure file logging.
+
+    Falls back to stderr on permission error (for non-root test/launch).
+    """
     target = log_path or str(LOG_PATH)
     try:
         Path(target).parent.mkdir(parents=True, exist_ok=True)

@@ -8,7 +8,7 @@ Default free time is **15:00 → 22:00** local time. Focus hours are **22:00 →
 
 - Python daemon and CLI.
 - systemd service with `Restart=always` for boot persistence and crash recovery.
-- NetworkManager dnsmasq `ipset` rules classify configured domains.
+- NetworkManager dnsmasq `nftset` rules (populating nftables sets) classify configured domains.
 - nftables rejects outbound HTTP/HTTPS traffic to classified IP addresses.
 - Local logs live in `/var/log/focusguard/` and are rotated for 30 days.
 
