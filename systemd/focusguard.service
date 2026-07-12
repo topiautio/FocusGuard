@@ -13,6 +13,7 @@ User=root
 NoNewPrivileges=yes
 ProtectSystem=full
 ProtectHome=yes
+RuntimeDirectory=focusguard
 ReadWritePaths=/etc/NetworkManager/dnsmasq.d /etc/nftables.d /var/lib/focusguard /var/log/focusguard
 
 [Install]

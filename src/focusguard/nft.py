@@ -14,7 +14,9 @@ NFT_RULES = """table inet focusguard {
   chain output {
     type filter hook output priority 0; policy accept;
     ip daddr @blocked_v4 tcp dport { 80, 443 } reject
+    ip daddr @blocked_v4 udp dport 443 reject
     ip6 daddr @blocked_v6 tcp dport { 80, 443 } reject
+    ip6 daddr @blocked_v6 udp dport 443 reject
   }
 }
 """

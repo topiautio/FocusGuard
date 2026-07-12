@@ -28,11 +28,6 @@ python3 -m pip install --break-system-packages --upgrade /opt/focusguard
 # Ensure entry points are symlinked to /usr/bin (unit hardcodes /usr/bin/focusguard-daemon etc.)
 # Always discover after pip (may land in /usr/local/bin) and force the links.
 python3 - <<'PY' | while read -r exe src; do
-  if [ -x "$src" ]; then
-    ln -sf "$src" "/usr/bin/$exe"
-    echo "install: linked /usr/bin/$exe -> $src" >&2
-  fi
-done
 import shutil
 import os
 for exe in ("focusguard", "focusguard-daemon", "focusguard-nm-dispatcher"):
@@ -46,6 +41,11 @@ for exe in ("focusguard", "focusguard-daemon", "focusguard-nm-dispatcher"):
     if src:
         print(exe, src)
 PY
+  if [ -x "$src" ]; then
+    ln -sf "$src" "/usr/bin/$exe"
+    echo "install: linked /usr/bin/$exe -> $src" >&2
+  fi
+done
 
 if [[ ! -f /etc/focusguard/config.toml ]]; then install -m 0644 "$ROOT_DIR/config/config.toml" /etc/focusguard/config.toml; fi
 # Remove any stale unit (from prior versions) that may reference /run/focusguard causing ns mount failures

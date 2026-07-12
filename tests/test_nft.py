@@ -15,6 +15,8 @@ def test_focus_mode_emits_xcom_and_youtube_in_dnsmasq():
     # confirm defaults per README / config
     assert "x.com" in cfg.blocklist
     assert "youtube.com" in cfg.blocklist
+    assert "googlevideo.com" in cfg.blocklist
+    assert "ytimg.com" in cfg.blocklist
     assert "music.youtube.com" in cfg.whitelist
 
     # focus time outside allow window
@@ -35,6 +37,14 @@ def test_focus_mode_emits_xcom_and_youtube_in_dnsmasq():
         )
         assert (
             "nftset=/youtube.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
+            in content
+        )
+        assert (
+            "nftset=/googlevideo.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
+            in content
+        )
+        assert (
+            "nftset=/ytimg.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
             in content
         )
         # whitelist sub must not appear as a block target
@@ -67,5 +77,6 @@ def test_nft_rules_have_reject_for_blocked_sets():
     assert "blocked_v4" in NFT_RULES
     assert "blocked_v6" in NFT_RULES
     assert "tcp dport { 80, 443 } reject" in NFT_RULES
+    assert "udp dport 443 reject" in NFT_RULES
     assert "ip daddr @blocked_v4" in NFT_RULES
     assert "ip6 daddr @blocked_v6" in NFT_RULES

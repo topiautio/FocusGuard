@@ -21,6 +21,8 @@ DEFAULT_BLOCKLIST = [
     "youtube.com",
     "www.youtube.com",
     "youtu.be",
+    "googlevideo.com",
+    "ytimg.com",
     "instagram.com",
     "facebook.com",
     "threads.net",
