@@ -45,6 +45,18 @@ The package is intentionally small and modular:
 - `daemon.py` applies schedule transitions.
 - `cli.py` provides user commands.
 
+## Browser extension
+
+The extension is a separate TypeScript project. Install its locked dependencies and run the build, which includes TypeScript checking:
+
+```bash
+cd extension
+npm ci
+npm run build
+```
+
+Generated files are written to `extension/dist/` and are not committed.
+
 ## Manual Testing
 
 For end-to-end testing of install + daemon, use a VM or disposable container:
@@ -52,8 +64,7 @@ For end-to-end testing of install + daemon, use a VM or disposable container:
 ```bash
 sudo ./install.sh
 focusguard status
-# ... exercise the CLI and schedule
+# Exercise the CLI and schedule.
 ```
 
 Do not automate this into complex scripts or harnesses.
-

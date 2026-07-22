@@ -9,10 +9,9 @@ from focusguard.nft import NFT_RULES, write_dnsmasq_config
 from focusguard.schedule import is_allowed, schedule_state
 
 
-def test_focus_mode_emits_xcom_and_youtube_in_dnsmasq():
-    """Core: in focus, dnsmasq config must include x.com and youtube.com blocks."""
+def test_focus_mode_emits_block_rules_and_preserves_whitelist():
+    """Focus mode emits blocks without covering a whitelisted child domain."""
     cfg = Config()
-    # confirm defaults per README / config
     assert "x.com" in cfg.blocklist
     assert "youtube.com" in cfg.blocklist
     assert "googlevideo.com" in cfg.blocklist
@@ -30,15 +29,14 @@ def test_focus_mode_emits_xcom_and_youtube_in_dnsmasq():
         p = Path(td) / "dnsmasq-focus.conf"
         write_dnsmasq_config(p, cfg, enabled=True)  # focus => enabled
         content = p.read_text()
-        # evidence that x.com (user example) and youtube.com are to be blocked
         assert (
             "nftset=/x.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
             in content
         )
-        assert (
-            "nftset=/youtube.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
-            in content
-        )
+        # The parent rule would also classify music.youtube.com, so it is omitted.
+        assert "nftset=/youtube.com/" not in content
+        # Explicit siblings remain blocked.
+        assert "nftset=/www.youtube.com/" in content
         assert (
             "nftset=/googlevideo.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
             in content
@@ -47,13 +45,23 @@ def test_focus_mode_emits_xcom_and_youtube_in_dnsmasq():
             "nftset=/ytimg.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
             in content
         )
-        # whitelist sub must not appear as a block target
         assert "music.youtube.com" not in content
-        # other blocks present
         assert (
             "nftset=/reddit.com/4#inet#focusguard#blocked_v4,6#inet#focusguard#blocked_v6"
             in content
         )
+
+
+def test_whitelisted_child_suppresses_overlapping_parent_rule():
+    cfg = Config(
+        blocklist=("example.com",),
+        whitelist=("allowed.example.com",),
+    )
+
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "dnsmasq-focus.conf"
+        write_dnsmasq_config(path, cfg, enabled=True)
+        assert "nftset=/example.com/" not in path.read_text(encoding="utf-8")
 
 
 def test_free_mode_emits_no_blocks():
