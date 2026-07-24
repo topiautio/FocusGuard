@@ -50,7 +50,9 @@ def write_dnsmasq_config(path: Path, config: Config, enabled: bool) -> None:
         blocked = [
             d
             for d in config.blocklist
-            if not any(domain_matches(d, w) for w in config.whitelist)
+            if not any(
+                domain_matches(d, w) or domain_matches(w, d) for w in config.whitelist
+            )
         ]
         for domain in blocked:
             clean = domain.removeprefix("*.")

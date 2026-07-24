@@ -1,3 +1,4 @@
+# Example daily free-use window. Focus mode is active outside this interval.
 allow_start = "15:00"
 allow_end = "22:00"
 

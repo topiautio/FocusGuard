@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [[ ${EUID} -ne 0 ]]; then echo "Run as root: sudo ./install.sh" >&2; exit 1; fi
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-need=(python3 systemctl nft nmcli)
+need=(python3 systemctl nft nmcli dnsmasq)
 missing=()
 for cmd in "${need[@]}"; do command -v "$cmd" >/dev/null 2>&1 || missing+=("$cmd"); done
 # Ensure pip is available (python-pip package provides the module for python3 -m pip)
@@ -12,9 +12,9 @@ if ! python3 -m pip --version >/dev/null 2>&1; then
 fi
 if ((${#missing[@]})); then
   if command -v pacman >/dev/null 2>&1; then
-    pacman -Sy --needed --noconfirm python nftables networkmanager python-pip
+    pacman -S --needed --noconfirm python nftables networkmanager dnsmasq python-pip
   else
-    echo "Missing dependencies: ${missing[*]}. Install Python 3.13+, python3-pip, nftables, systemd, NetworkManager." >&2; exit 1
+    echo "Missing dependencies: ${missing[*]}. Install Python 3.13+, python3-pip, nftables, systemd, NetworkManager, and dnsmasq." >&2; exit 1
   fi
 fi
 python3 - <<'PY'
@@ -41,7 +41,7 @@ for exe in ("focusguard", "focusguard-daemon", "focusguard-nm-dispatcher"):
     if src:
         print(exe, src)
 PY
-  if [ -x "$src" ]; then
+  if [ -x "$src" ] && [[ "$src" != "/usr/bin/$exe" ]]; then
     ln -sf "$src" "/usr/bin/$exe"
     echo "install: linked /usr/bin/$exe -> $src" >&2
   fi
