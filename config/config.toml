@@ -1,6 +1,16 @@
 # Example daily free-use window. Focus mode is active outside this interval.
 allow_start = "15:00"
 allow_end = "22:00"
+# Apply the schedule on these calendar days. Omit this key to use every day.
+active_days = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday"
+]
 
 notifications = true
 logging = true

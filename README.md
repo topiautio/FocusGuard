@@ -21,7 +21,7 @@ Python daemon and CLI ── managed by systemd
             └── rejects TCP 80/443 and UDP 443 during focus mode
 ```
 
-- `focusguard-daemon` reads the daily allow window and domain rules from `/etc/focusguard/config.toml`.
+- `focusguard-daemon` reads the allow window, active days, and domain rules from `/etc/focusguard/config.toml`.
 - In focus mode, it installs a dedicated nftables table and writes NetworkManager dnsmasq integration under `/etc/NetworkManager/dnsmasq.d/`.
 - dnsmasq adds IPv4 and IPv6 answers for matching domains to the FocusGuard nftables sets.
 - In free-use mode, the daemon removes the dedicated table and stops emitting block rules.
@@ -64,6 +64,17 @@ Edit `/etc/focusguard/config.toml`. This example allows unrestricted use from 15
 allow_start = "15:00"
 allow_end = "22:00"
 
+# Apply the schedule on these calendar days. Omit this key to use every day.
+active_days = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday"
+]
+
 notifications = true
 logging = true
 
@@ -77,7 +88,7 @@ blocklist = [
 whitelist = ["music.youtube.com"]
 ```
 
-The allow window is configurable and may cross midnight. A whitelist entry takes precedence over an overlapping blocklist entry. If a whitelisted child domain overlaps a blocked parent, FocusGuard omits the parent rule; list any sibling domains that should remain blocked explicitly. Shared CDN domains may still affect both sites.
+The allow window is configurable and may cross midnight. `active_days` is optional, accepts lowercase or uppercase day names, and defaults to all seven days. On days not listed, FocusGuard stays in free-use mode for the entire calendar day; an empty list disables scheduled blocking. For example, use `active_days = ["monday", "tuesday", "wednesday", "thursday", "friday"]` for weekdays only. A whitelist entry takes precedence over an overlapping blocklist entry. If a whitelisted child domain overlaps a blocked parent, FocusGuard omits the parent rule; list any sibling domains that should remain blocked explicitly. Shared CDN domains may still affect both sites.
 
 Apply changes with:
 
