@@ -96,6 +96,15 @@ def normalize_domain(domain: str) -> str:
     return value
 
 
+def parse_domains(value: object, field: str) -> tuple[str, ...]:
+    """Validate and normalize a configured domain list."""
+    if not isinstance(value, (list, tuple)) or not all(
+        isinstance(domain, str) for domain in value
+    ):
+        raise ConfigError(f"{field} must be an array of domain names")
+    return tuple(normalize_domain(domain) for domain in value)
+
+
 def load_config(path: Path) -> Config:
     """Load configuration from TOML, returning defaults for a missing file."""
     if not path.exists():
@@ -116,12 +125,8 @@ def load_config(path: Path) -> Config:
     unknown = sorted(set(data) - allowed)
     if unknown:
         raise ConfigError(f"unknown config keys: {', '.join(unknown)}")
-    blocklist = tuple(
-        normalize_domain(x) for x in data.get("blocklist", DEFAULT_BLOCKLIST)
-    )
-    whitelist = tuple(
-        normalize_domain(x) for x in data.get("whitelist", DEFAULT_WHITELIST)
-    )
+    blocklist = parse_domains(data.get("blocklist", DEFAULT_BLOCKLIST), "blocklist")
+    whitelist = parse_domains(data.get("whitelist", DEFAULT_WHITELIST), "whitelist")
     if not isinstance(data.get("notifications", True), bool) or not isinstance(
         data.get("logging", True), bool
     ):

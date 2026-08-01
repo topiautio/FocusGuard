@@ -6,7 +6,7 @@ import logging
 import signal
 import subprocess
 import sys
-import time
+import threading
 from pathlib import Path
 
 from .config import ConfigError, load_config
@@ -23,6 +23,7 @@ from .state import load_state, save_state
 
 _STOP = False
 _RELOAD = True
+_WAKE = threading.Event()
 
 
 def _signal(signum: int, _frame: object) -> None:
@@ -31,6 +32,13 @@ def _signal(signum: int, _frame: object) -> None:
         _STOP = True
     if signum == signal.SIGHUP:
         _RELOAD = True
+    _WAKE.set()
+
+
+def _wait_for_wakeup(seconds: float) -> None:
+    """Wait for a schedule deadline or a signal-driven reload."""
+    _WAKE.wait(seconds)
+    _WAKE.clear()
 
 
 def setup_logging(log_path: str | None = None) -> None:
@@ -99,16 +107,16 @@ def main() -> int:
             sleep_for = max(
                 1, min(3600, int((state.next_transition - local_now()).total_seconds()))
             )
-            time.sleep(sleep_for)
+            _wait_for_wakeup(sleep_for)
         except ConfigError as exc:
             logging.error("configuration error: %s", exc)
-            time.sleep(30)
+            _wait_for_wakeup(30)
         except PermissionError as exc:
             logging.error("daemon error: %s", exc)
-            time.sleep(10)
+            _wait_for_wakeup(10)
         except Exception as exc:  # noqa: BLE001
             logging.exception("daemon error: %s", exc)
-            time.sleep(10)
+            _wait_for_wakeup(10)
     disable_nft_rules()
     return 0
 

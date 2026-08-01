@@ -25,14 +25,14 @@ Python daemon and CLI ── managed by systemd
 - In focus mode, it installs a dedicated nftables table and writes NetworkManager dnsmasq integration under `/etc/NetworkManager/dnsmasq.d/`.
 - dnsmasq adds IPv4 and IPv6 answers for matching domains to the FocusGuard nftables sets.
 - In free-use mode, the daemon removes the dedicated table and stops emitting block rules.
-- The `focusguard` CLI reports status, reloads configuration, and exposes local logs and statistics.
+- The `focusguard` CLI reports status, reloads configuration, and exposes local logs.
 
 FocusGuard does not replace the host's main firewall configuration and does not require Docker, a virtual machine, or a browser extension for core blocking.
 
 ## Requirements
 
 - Linux with systemd
-- Python 3.13 or newer and pip
+- Python 3.13 or newer with pip and venv support
 - NetworkManager using its embedded dnsmasq integration
 - nftables
 
@@ -46,7 +46,7 @@ Run the installer from a trusted checkout:
 sudo ./install.sh
 ```
 
-The installer installs the Python package, example configuration, systemd unit, NetworkManager dispatcher hook, nftables support files, and logrotate configuration. It enables and starts the required services, which may briefly reload or restart NetworkManager.
+The installer installs the Python package into an isolated `/opt/focusguard/.venv`, creates CLI links in `/usr/local/bin`, and installs the example configuration, systemd unit, NetworkManager dispatcher hook, nftables support files, and logrotate configuration. It does not modify the system Python environment. It enables and starts the required services, which may briefly reload or restart NetworkManager.
 
 To remove FocusGuard:
 
@@ -102,7 +102,6 @@ Domain entries may be exact domains, parent domains that include their subdomain
 
 ```bash
 focusguard status
-focusguard stats
 focusguard reload
 focusguard logs
 focusguard version
@@ -122,7 +121,7 @@ See [limitations and trade-offs](docs/LIMITATIONS.md) for details.
 
 ## Privacy and telemetry
 
-The core blocker has no telemetry, analytics, cloud service, or outbound reporting. Configuration, aggregate state, and logs remain on the local machine; logs are stored in `/var/log/focusguard/` and rotated for 30 days.
+The core blocker has no telemetry, analytics, cloud service, or outbound reporting. Configuration, runtime state, and logs remain on the local machine; logs are stored in `/var/log/focusguard/` and rotated for 30 days.
 
 The optional browser extension stores only boolean site preferences with `chrome.storage.sync`. Depending on browser settings, the browser vendor may synchronize those preferences through the signed-in browser account. The extension does not transmit browsing history or page content to FocusGuard.
 
