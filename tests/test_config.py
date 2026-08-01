@@ -56,3 +56,15 @@ def test_invalid_active_day(tmp_path):
 
     with pytest.raises(ConfigError, match="invalid active_days"):
         load_config(path)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("blocklist", "[1]"), ("whitelist", "false")],
+)
+def test_invalid_domain_list(tmp_path, field, value):
+    path = tmp_path / "config.toml"
+    path.write_text(f"{field} = {value}\n")
+
+    with pytest.raises(ConfigError, match=f"{field} must be an array"):
+        load_config(path)

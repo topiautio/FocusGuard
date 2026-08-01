@@ -1,9 +1,11 @@
 """Test setup_logging fallback installs StreamHandler on PermissionError."""
 
 import logging
+import signal
 import sys
 import unittest.mock as mock
 
+import focusguard.daemon as daemon
 from focusguard.daemon import setup_logging
 
 # ruff: noqa: ARG001 - monkeypatch is a pytest fixture (injected by name, unused in body)
@@ -47,3 +49,24 @@ def test_setup_logging_uses_streamhandler_on_permission_error(monkeypatch):
     assert (
         not has_file
     ), f"FileHandler present; fallback to StreamHandler did not occur: {handlers}"
+
+
+def test_signal_wakes_daemon_wait(monkeypatch):
+    wake = mock.Mock()
+    monkeypatch.setattr(daemon, "_WAKE", wake)
+    monkeypatch.setattr(daemon, "_STOP", False)
+
+    daemon._signal(signal.SIGTERM, None)
+
+    assert daemon._STOP
+    wake.set.assert_called_once_with()
+
+
+def test_wait_for_wakeup_uses_signal_event(monkeypatch):
+    wake = mock.Mock()
+    monkeypatch.setattr(daemon, "_WAKE", wake)
+
+    daemon._wait_for_wakeup(30)
+
+    wake.wait.assert_called_once_with(30)
+    wake.clear.assert_called_once_with()

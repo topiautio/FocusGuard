@@ -8,9 +8,8 @@ import sys
 
 from . import __version__
 from .config import ConfigError, load_config
-from .paths import CONFIG_PATH, LOG_PATH, STATE_PATH
+from .paths import CONFIG_PATH, LOG_PATH
 from .schedule import local_now, schedule_state
-from .state import summarize
 
 
 def service_active() -> bool:
@@ -37,17 +36,6 @@ def cmd_status(_args: argparse.Namespace) -> int:
     print(f"Active days: {days}")
     print(f"Next transition: {state.next_transition:%Y-%m-%d %H:%M:%S %Z}")
     print(f"Daemon running: {'yes' if service_active() else 'no'}")
-    return 0
-
-
-def cmd_stats(_args: argparse.Namespace) -> int:
-    """Print block statistics."""
-    stats = summarize(STATE_PATH)
-    print(f"Today's blocked attempts: {stats['today_count']}")
-    print("Top blocked domains:")
-    for domain, count in stats["top_domains"]:
-        print(f"  {domain}: {count}")
-    print(f"Weekly blocked attempts: {stats['weekly_count']}")
     return 0
 
 
@@ -82,7 +70,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="focusguard")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("status").set_defaults(func=cmd_status)
-    sub.add_parser("stats").set_defaults(func=cmd_stats)
     sub.add_parser("reload").set_defaults(func=cmd_reload)
     logs = sub.add_parser("logs")
     logs.add_argument("-n", "--lines", type=int, default=50)

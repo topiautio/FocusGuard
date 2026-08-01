@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/focusguard-daemon
+ExecStart=/opt/focusguard/.venv/bin/focusguard-daemon
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=5

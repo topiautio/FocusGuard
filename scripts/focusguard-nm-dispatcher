@@ -2,6 +2,6 @@
 set -euo pipefail
 case "${2:-}" in
   up|dhcp4-change|dhcp6-change|connectivity-change)
-    /usr/bin/focusguard-nm-dispatcher || true
+    /opt/focusguard/.venv/bin/focusguard-nm-dispatcher || true
     ;;
 esac
