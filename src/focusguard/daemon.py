@@ -75,7 +75,9 @@ def main() -> int:
                 _RELOAD = False
                 blocked = None
                 logging.info("configuration loaded")
-            state = schedule_state(local_now(), cfg.allow_start, cfg.allow_end)
+            state = schedule_state(
+                local_now(), cfg.allow_start, cfg.allow_end, cfg.active_days
+            )
             should_block = not state.allowed
             if should_block != blocked:
                 if should_block:

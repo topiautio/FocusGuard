@@ -11,7 +11,7 @@ from .schedule import local_now, schedule_state
 def main() -> int:
     """Reapply rules after network changes."""
     cfg = load_config(CONFIG_PATH)
-    state = schedule_state(local_now(), cfg.allow_start, cfg.allow_end)
+    state = schedule_state(local_now(), cfg.allow_start, cfg.allow_end, cfg.active_days)
     if not state.allowed:
         install_nft_rules(NFT_TABLE_FILE)
         write_dnsmasq_config(DNSMASQ_CONF, cfg, True)

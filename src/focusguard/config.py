@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import time
 from pathlib import Path
 
+from .schedule import DAY_NAMES
+
 try:
     import tomllib
 except ModuleNotFoundError:  # pragma: no cover
@@ -45,6 +47,7 @@ class Config:
     logging: bool = True
     blocklist: tuple[str, ...] = tuple(DEFAULT_BLOCKLIST)
     whitelist: tuple[str, ...] = tuple(DEFAULT_WHITELIST)
+    active_days: tuple[str, ...] = DAY_NAMES
 
 
 class ConfigError(ValueError):
@@ -59,6 +62,24 @@ def parse_time(value: str) -> time:
         return time(hour, minute)
     except Exception as exc:  # noqa: BLE001
         raise ConfigError(f"invalid time {value!r}; expected HH:MM") from exc
+
+
+def parse_days(value: object) -> tuple[str, ...]:
+    """Parse and normalize configured calendar day names."""
+    if not isinstance(value, (list, tuple)) or not all(
+        isinstance(day, str) for day in value
+    ):
+        raise ConfigError("active_days must be an array of day names")
+    normalized = tuple(day.strip().lower() for day in value)
+    invalid = sorted(set(normalized) - set(DAY_NAMES))
+    if invalid:
+        expected = ", ".join(DAY_NAMES)
+        raise ConfigError(
+            f"invalid active_days: {', '.join(invalid)}; expected {expected}"
+        )
+    if len(normalized) != len(set(normalized)):
+        raise ConfigError("active_days must not contain duplicate day names")
+    return tuple(day for day in DAY_NAMES if day in normalized)
 
 
 def normalize_domain(domain: str) -> str:
@@ -86,6 +107,7 @@ def load_config(path: Path) -> Config:
     allowed = {
         "allow_start",
         "allow_end",
+        "active_days",
         "notifications",
         "logging",
         "blocklist",
@@ -107,6 +129,7 @@ def load_config(path: Path) -> Config:
     return Config(
         allow_start=parse_time(data.get("allow_start", "15:00")),
         allow_end=parse_time(data.get("allow_end", "22:00")),
+        active_days=parse_days(data.get("active_days", DAY_NAMES)),
         notifications=data.get("notifications", True),
         logging=data.get("logging", True),
         blocklist=blocklist,

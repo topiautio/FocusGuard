@@ -30,9 +30,11 @@ def cmd_status(_args: argparse.Namespace) -> int:
     except ConfigError as exc:
         print(f"Configuration error: {exc}", file=sys.stderr)
         return 2
-    state = schedule_state(local_now(), cfg.allow_start, cfg.allow_end)
+    state = schedule_state(local_now(), cfg.allow_start, cfg.allow_end, cfg.active_days)
     print(f"Mode: {'free time' if state.allowed else 'focus hours'}")
     print(f"Schedule: allow {cfg.allow_start:%H:%M} → {cfg.allow_end:%H:%M}")
+    days = ", ".join(day.capitalize() for day in cfg.active_days) or "none"
+    print(f"Active days: {days}")
     print(f"Next transition: {state.next_transition:%Y-%m-%d %H:%M:%S %Z}")
     print(f"Daemon running: {'yes' if service_active() else 'no'}")
     return 0

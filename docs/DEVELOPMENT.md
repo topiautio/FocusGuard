@@ -39,7 +39,7 @@ black --check .
 The package is intentionally small and modular:
 
 - `config.py` validates TOML.
-- `schedule.py` contains time-window logic.
+- `schedule.py` contains time-window and active-day logic.
 - `matcher.py` contains wildcard/root domain matching.
 - `nft.py` writes nftables and NetworkManager dnsmasq integration.
 - `daemon.py` applies schedule transitions.
