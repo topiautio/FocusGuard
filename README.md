@@ -76,7 +76,7 @@ active_days = [
 ]
 
 notifications = true
-logging = true
+logging = false
 
 blocklist = [
   "reddit.com",
@@ -87,6 +87,8 @@ blocklist = [
 
 whitelist = ["music.youtube.com"]
 ```
+
+Persistent file logging is disabled by default. Set `logging = true` if you want FocusGuard to write its rotated log file; with logging disabled, service messages remain available through `journalctl -u focusguard`.
 
 The allow window is configurable and may cross midnight. `active_days` is optional, accepts lowercase or uppercase day names, and defaults to all seven days. On days not listed, FocusGuard stays in free-use mode for the entire calendar day; an empty list disables scheduled blocking. For example, use `active_days = ["monday", "tuesday", "wednesday", "thursday", "friday"]` for weekdays only. A whitelist entry takes precedence over an overlapping blocklist entry. If a whitelisted child domain overlaps a blocked parent, FocusGuard omits the parent rule; list any sibling domains that should remain blocked explicitly. Shared CDN domains may still affect both sites.
 
