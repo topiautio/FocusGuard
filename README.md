@@ -121,7 +121,7 @@ See [limitations and trade-offs](docs/LIMITATIONS.md) for details.
 
 ## Privacy and telemetry
 
-The core blocker has no telemetry, analytics, cloud service, or outbound reporting. Configuration, runtime state, and logs remain on the local machine; logs are stored in `/var/log/focusguard/` and rotated for 30 days.
+The core blocker has no telemetry, analytics, cloud service, or outbound reporting. Configuration and runtime state remain on the local machine. Persistent logs are disabled by default; when enabled, they are stored in `/var/log/focusguard/` and rotated for 30 days.
 
 The optional browser extension stores only boolean site preferences with `chrome.storage.sync`. Depending on browser settings, the browser vendor may synchronize those preferences through the signed-in browser account. The extension does not transmit browsing history or page content to FocusGuard.
 
