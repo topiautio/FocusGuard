@@ -48,7 +48,18 @@ def cmd_reload(_args: argparse.Namespace) -> int:
 
 
 def cmd_logs(args: argparse.Namespace) -> int:
-    """Show recent logs."""
+    """Show recent persistent logs."""
+    try:
+        cfg = load_config(CONFIG_PATH)
+    except ConfigError as exc:
+        print(f"Configuration error: {exc}", file=sys.stderr)
+        return 2
+    if not cfg.logging:
+        print(
+            "Persistent logging is disabled; use "
+            "'journalctl -u focusguard' for service logs."
+        )
+        return 0
     if not LOG_PATH.exists():
         print("No FocusGuard log file found.")
         return 0

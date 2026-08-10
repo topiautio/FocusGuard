@@ -76,7 +76,7 @@ active_days = [
 ]
 
 notifications = true
-logging = true
+logging = false
 
 blocklist = [
   "reddit.com",
@@ -87,6 +87,8 @@ blocklist = [
 
 whitelist = ["music.youtube.com"]
 ```
+
+Persistent file logging is disabled by default. Set `logging = true` if you want FocusGuard to write its rotated log file; with logging disabled, service messages remain available through `journalctl -u focusguard`.
 
 The allow window is configurable and may cross midnight. `active_days` is optional, accepts lowercase or uppercase day names, and defaults to all seven days. On days not listed, FocusGuard stays in free-use mode for the entire calendar day; an empty list disables scheduled blocking. For example, use `active_days = ["monday", "tuesday", "wednesday", "thursday", "friday"]` for weekdays only. A whitelist entry takes precedence over an overlapping blocklist entry. If a whitelisted child domain overlaps a blocked parent, FocusGuard omits the parent rule; list any sibling domains that should remain blocked explicitly. Shared CDN domains may still affect both sites.
 
@@ -121,7 +123,7 @@ See [limitations and trade-offs](docs/LIMITATIONS.md) for details.
 
 ## Privacy and telemetry
 
-The core blocker has no telemetry, analytics, cloud service, or outbound reporting. Configuration, runtime state, and logs remain on the local machine; logs are stored in `/var/log/focusguard/` and rotated for 30 days.
+The core blocker has no telemetry, analytics, cloud service, or outbound reporting. Configuration and runtime state remain on the local machine. Persistent logs are disabled by default; when enabled, they are stored in `/var/log/focusguard/` and rotated for 30 days.
 
 The optional browser extension stores only boolean site preferences with `chrome.storage.sync`. Depending on browser settings, the browser vendor may synchronize those preferences through the signed-in browser account. The extension does not transmit browsing history or page content to FocusGuard.
 

@@ -44,7 +44,7 @@ class Config:
     allow_start: time = time(15, 0)
     allow_end: time = time(22, 0)
     notifications: bool = True
-    logging: bool = True
+    logging: bool = False
     blocklist: tuple[str, ...] = tuple(DEFAULT_BLOCKLIST)
     whitelist: tuple[str, ...] = tuple(DEFAULT_WHITELIST)
     active_days: tuple[str, ...] = DAY_NAMES
@@ -128,7 +128,7 @@ def load_config(path: Path) -> Config:
     blocklist = parse_domains(data.get("blocklist", DEFAULT_BLOCKLIST), "blocklist")
     whitelist = parse_domains(data.get("whitelist", DEFAULT_WHITELIST), "whitelist")
     if not isinstance(data.get("notifications", True), bool) or not isinstance(
-        data.get("logging", True), bool
+        data.get("logging", False), bool
     ):
         raise ConfigError("notifications and logging must be booleans")
     return Config(
@@ -136,7 +136,7 @@ def load_config(path: Path) -> Config:
         allow_end=parse_time(data.get("allow_end", "22:00")),
         active_days=parse_days(data.get("active_days", DAY_NAMES)),
         notifications=data.get("notifications", True),
-        logging=data.get("logging", True),
+        logging=data.get("logging", False),
         blocklist=blocklist,
         whitelist=whitelist,
     )

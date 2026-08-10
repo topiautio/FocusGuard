@@ -70,3 +70,24 @@ def test_wait_for_wakeup_uses_signal_event(monkeypatch):
 
     wake.wait.assert_called_once_with(30)
     wake.clear.assert_called_once_with()
+
+
+def test_setup_logging_disabled_uses_stderr_without_file(tmp_path):
+    """Disable persistent logs while keeping messages in the system journal."""
+    root = logging.getLogger()
+    for handler in list(root.handlers):
+        root.removeHandler(handler)
+    root.setLevel(logging.NOTSET)
+
+    log_path = tmp_path / "focusguard.log"
+    setup_logging(str(log_path), enabled=False)
+
+    assert any(
+        isinstance(handler, logging.StreamHandler)
+        and getattr(handler, "stream", None) is sys.stderr
+        for handler in root.handlers
+    )
+    assert not any(
+        isinstance(handler, logging.FileHandler) for handler in root.handlers
+    )
+    assert not log_path.exists()

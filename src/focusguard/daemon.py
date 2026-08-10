@@ -41,24 +41,37 @@ def _wait_for_wakeup(seconds: float) -> None:
     _WAKE.clear()
 
 
-def setup_logging(log_path: str | None = None) -> None:
-    """Configure file logging.
+def setup_logging(log_path: str | None = None, enabled: bool = True) -> None:
+    """Configure persistent file logging when enabled.
 
-    Falls back to stderr on permission error (for non-root test/launch).
+    When persistent logging is disabled, messages go to stderr so systemd can
+    retain them in the journal without creating a FocusGuard log file.
     """
+    log_format = "%(asctime)s %(levelname)s %(message)s"
+    if not enabled:
+        logging.basicConfig(
+            level=logging.INFO,
+            format=log_format,
+            handlers=[logging.StreamHandler(sys.stderr)],
+            force=True,
+        )
+        return
+
     target = log_path or str(LOG_PATH)
     try:
         Path(target).parent.mkdir(parents=True, exist_ok=True)
         logging.basicConfig(
             filename=target,
             level=logging.INFO,
-            format="%(asctime)s %(levelname)s %(message)s",
+            format=log_format,
+            force=True,
         )
     except (PermissionError, OSError):
         logging.basicConfig(
             level=logging.INFO,
-            format="%(asctime)s %(levelname)s %(message)s",
+            format=log_format,
             handlers=[logging.StreamHandler(sys.stderr)],
+            force=True,
         )
 
 
@@ -73,13 +86,13 @@ def main() -> int:
     signal.signal(signal.SIGTERM, _signal)
     signal.signal(signal.SIGINT, _signal)
     signal.signal(signal.SIGHUP, _signal)
-    setup_logging()
     cfg = None
     blocked = None
     while not _STOP:
         try:
             if _RELOAD or cfg is None:
                 cfg = load_config(CONFIG_PATH)
+                setup_logging(enabled=cfg.logging)
                 _RELOAD = False
                 blocked = None
                 logging.info("configuration loaded")

@@ -29,8 +29,10 @@ def test_load_config(tmp_path):
     assert cfg.blocklist == ("reddit.com",)
 
 
-def test_missing_config_defaults_to_all_days(tmp_path):
+def test_missing_config_defaults_to_all_days_and_logging_disabled(tmp_path):
     cfg = load_config(tmp_path / "missing.toml")
+
+    assert not cfg.logging
 
     assert cfg.active_days == (
         "monday",

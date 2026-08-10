@@ -13,7 +13,8 @@ active_days = [
 ]
 
 notifications = true
-logging = true
+# Persistent file logging is disabled by default; use journald for service logs.
+logging = false
 
 blocklist = [
   "x.com",
