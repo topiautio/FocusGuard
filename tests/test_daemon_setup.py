@@ -87,5 +87,7 @@ def test_setup_logging_disabled_uses_stderr_without_file(tmp_path):
         and getattr(handler, "stream", None) is sys.stderr
         for handler in root.handlers
     )
-    assert not any(isinstance(handler, logging.FileHandler) for handler in root.handlers)
+    assert not any(
+        isinstance(handler, logging.FileHandler) for handler in root.handlers
+    )
     assert not log_path.exists()
