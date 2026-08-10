@@ -32,7 +32,7 @@ DEFAULT_BLOCKLIST = [
 ]
 DEFAULT_WHITELIST = ["music.youtube.com"]
 _DOMAIN_RE = re.compile(
-    r"^(\\*\\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
+    r"^(\*\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
     re.I,
 )
 
