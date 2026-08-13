@@ -40,7 +40,12 @@ def cmd_status(_args: argparse.Namespace) -> int:
 
 
 def cmd_reload(_args: argparse.Namespace) -> int:
-    """Reload the daemon."""
+    """Validate configuration and reload the daemon."""
+    try:
+        load_config(CONFIG_PATH)
+    except ConfigError as exc:
+        print(f"Configuration error: {exc}", file=sys.stderr)
+        return 2
     result = subprocess.run(
         ["systemctl", "reload-or-restart", "focusguard"], check=False
     )
