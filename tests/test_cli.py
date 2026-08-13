@@ -17,9 +17,10 @@ def test_logs_reports_disabled_logging(tmp_path, monkeypatch, capsys):
     assert main(["logs"]) == 0
     assert "Persistent logging is disabled" in capsys.readouterr().out
 
+
 def test_reload_rejects_invalid_config(tmp_path, monkeypatch, capsys):
     config_path = tmp_path / "config.toml"
-    config_path.write_text("unknown = true\\n")
+    config_path.write_text("unknown = true\n")
     monkeypatch.setattr(cli, "CONFIG_PATH", config_path)
     run = mock.Mock()
     monkeypatch.setattr(cli.subprocess, "run", run)
@@ -31,7 +32,7 @@ def test_reload_rejects_invalid_config(tmp_path, monkeypatch, capsys):
 
 def test_reload_validates_config_before_reloading(tmp_path, monkeypatch):
     config_path = tmp_path / "config.toml"
-    config_path.write_text("logging = false\\n")
+    config_path.write_text("logging = false\n")
     monkeypatch.setattr(cli, "CONFIG_PATH", config_path)
     run = mock.Mock(return_value=mock.Mock(returncode=0))
     monkeypatch.setattr(cli.subprocess, "run", run)
