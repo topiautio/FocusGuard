@@ -8,6 +8,8 @@ Browser DNS-over-HTTPS can bypass local DNS-based classification. FocusGuard can
 
 A blocked hostname is converted to its current IPv4 and IPv6 answers. An address may host multiple unrelated services, so blocking one domain can also affect other services on the same address. A DNS authority for a configured blocked name also controls which addresses enter the FocusGuard sets. Because the blocklist is root-controlled, this is a constrained local availability risk, but administrators should treat blocklist entries as trusted policy inputs.
 
+`focusguard status` checks only whether the expected nftables table and generated dnsmasq rules are observable. It cannot prove that every current DNS answer is in the sets or detect browser DNS-over-HTTPS bypasses, and an unprivileged status invocation may report `unknown`.
+
 The dynamically populated nftables sets currently have no explicit element timeout or size bound. FocusGuard recreates its dedicated table across mode transitions, which clears the sets, but unusually large or rapidly changing DNS answer sets have not been measured in a disposable privileged environment.
 
 ## Shared service infrastructure
