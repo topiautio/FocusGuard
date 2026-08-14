@@ -111,6 +111,8 @@ focusguard version
 
 `focusguard reload` validates the configuration before asking systemd to reload the daemon. Invalid TOML or settings are reported immediately with a non-zero exit code; the daemon validates the file again when it starts or reloads.
 
+`focusguard status` also performs a best-effort enforcement check. It compares the scheduled mode with the dedicated nftables table and generated dnsmasq rules, reporting `active`, `clear`, `mismatch`, or `unknown`. Use `sudo focusguard status` when nftables permissions are restricted; an `unknown` result does not by itself mean that blocking is broken.
+
 Reloading the system service requires appropriate systemd permissions, typically by running `sudo focusguard reload`.
 
 ## Limitations

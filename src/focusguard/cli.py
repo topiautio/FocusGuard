@@ -7,8 +7,9 @@ import subprocess
 import sys
 
 from . import __version__
-from .config import ConfigError, load_config
-from .paths import CONFIG_PATH, LOG_PATH
+from .config import Config, ConfigError, load_config
+from .nft import effective_blocklist
+from .paths import CONFIG_PATH, DNSMASQ_CONF, LOG_PATH
 from .schedule import local_now, schedule_state
 
 
@@ -22,6 +23,48 @@ def service_active() -> bool:
     )
 
 
+def nft_table_present() -> bool | None:
+    """Return whether the FocusGuard nftables table is present."""
+    try:
+        result = subprocess.run(
+            ["nft", "list", "tables"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return None
+    if result.returncode != 0:
+        return None
+    return any(
+        line.strip() == "table inet focusguard" for line in result.stdout.splitlines()
+    )
+
+
+def dnsmasq_rules_present() -> bool | None:
+    """Return whether generated dnsmasq nftset rules are present."""
+    try:
+        content = DNSMASQ_CONF.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return False
+    except OSError:
+        return None
+    return any(line.strip().startswith("nftset=") for line in content.splitlines())
+
+
+def enforcement_status(config: Config, should_block: bool) -> str:
+    """Compare scheduled policy with the host's observable enforcement state."""
+    table_present = nft_table_present()
+    rules_present = dnsmasq_rules_present()
+    if table_present is None or rules_present is None:
+        return "unknown"
+
+    expected_rules = should_block and bool(effective_blocklist(config))
+    if table_present != should_block or rules_present != expected_rules:
+        return "mismatch"
+    return "active" if should_block else "clear"
+
+
 def cmd_status(_args: argparse.Namespace) -> int:
     """Print current status."""
     try:
@@ -30,11 +73,13 @@ def cmd_status(_args: argparse.Namespace) -> int:
         print(f"Configuration error: {exc}", file=sys.stderr)
         return 2
     state = schedule_state(local_now(), cfg.allow_start, cfg.allow_end, cfg.active_days)
+    should_block = not state.allowed
     print(f"Mode: {'free time' if state.allowed else 'focus hours'}")
     print(f"Schedule: allow {cfg.allow_start:%H:%M} → {cfg.allow_end:%H:%M}")
     days = ", ".join(day.capitalize() for day in cfg.active_days) or "none"
     print(f"Active days: {days}")
     print(f"Next transition: {state.next_transition:%Y-%m-%d %H:%M:%S %Z}")
+    print(f"Enforcement: {enforcement_status(cfg, should_block)}")
     print(f"Daemon running: {'yes' if service_active() else 'no'}")
     return 0
 
