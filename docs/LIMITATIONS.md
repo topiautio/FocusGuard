@@ -19,3 +19,7 @@ YouTube and YouTube Music share domains, cookies, and media infrastructure, incl
 ## Connection lifecycle
 
 The nftables rules reject TCP ports 80 and 443 plus UDP 443 for QUIC/HTTP/3. Existing connections, browser DNS caches, pre-resolved addresses, embedded media, or connection reuse may continue briefly around a mode transition.
+
+## Desktop notifications
+
+Desktop notifications are best-effort. The system service may not have access to a graphical user's D-Bus session, and headless systems may not provide `notify-send`; either condition only suppresses the notification and does not change enforcement.

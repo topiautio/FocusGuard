@@ -9,8 +9,9 @@ import sys
 import threading
 from pathlib import Path
 
-from .config import ConfigError, load_config
+from .config import Config, ConfigError, load_config
 from .nft import disable_nft_rules, install_nft_rules, write_dnsmasq_config
+from .notify import notify
 from .paths import (
     CONFIG_PATH,
     DNSMASQ_CONF,
@@ -80,6 +81,30 @@ def restart_networkmanager() -> None:
     subprocess.run(["systemctl", "reload-or-restart", "NetworkManager"], check=False)
 
 
+def notify_mode_change(should_block: bool, enabled: bool) -> None:
+    """Announce an applied mode change when desktop notifications are enabled."""
+    if not enabled:
+        return
+    message = (
+        "Focus mode enabled; distracting sites are blocked."
+        if should_block
+        else "Free time enabled; distracting sites are available."
+    )
+    notify(message)
+
+
+def apply_mode(config: Config, should_block: bool) -> None:
+    """Apply one mode transition and announce it after enforcement succeeds."""
+    if should_block:
+        install_nft_rules(NFT_TABLE_FILE)
+    else:
+        disable_nft_rules()
+    write_dnsmasq_config(DNSMASQ_CONF, config, should_block)
+    restart_networkmanager()
+    logging.info("mode changed to %s", "focus" if should_block else "free")
+    notify_mode_change(should_block, config.notifications)
+
+
 def main() -> int:
     """Run the daemon loop."""
     global _RELOAD
@@ -101,14 +126,8 @@ def main() -> int:
             )
             should_block = not state.allowed
             if should_block != blocked:
-                if should_block:
-                    install_nft_rules(NFT_TABLE_FILE)
-                else:
-                    disable_nft_rules()
-                write_dnsmasq_config(DNSMASQ_CONF, cfg, should_block)
-                restart_networkmanager()
+                apply_mode(cfg, should_block)
                 blocked = should_block
-                logging.info("mode changed to %s", "focus" if should_block else "free")
             existing = load_state(STATE_PATH)
             existing.update(
                 {
