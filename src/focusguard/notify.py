@@ -19,6 +19,14 @@ def notify(message: str, throttle_seconds: int = 30) -> None:
     user = os.environ.get("SUDO_USER") or os.environ.get("USER")
     if not user:
         return
-    subprocess.run(
-        ["sudo", "-u", user, "notify-send", "FocusGuard", message], check=False
-    )
+    try:
+        subprocess.run(
+            ["sudo", "-u", user, "notify-send", "FocusGuard", message],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.SubprocessError):
+        # A headless service or missing notification tools must not affect
+        # firewall enforcement.
+        return

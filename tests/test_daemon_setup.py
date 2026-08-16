@@ -6,6 +6,7 @@ import sys
 import unittest.mock as mock
 
 import focusguard.daemon as daemon
+from focusguard.config import Config
 from focusguard.daemon import setup_logging
 
 # ruff: noqa: ARG001 - monkeypatch is a pytest fixture (injected by name, unused in body)
@@ -70,6 +71,45 @@ def test_wait_for_wakeup_uses_signal_event(monkeypatch):
 
     wake.wait.assert_called_once_with(30)
     wake.clear.assert_called_once_with()
+
+
+def test_notify_mode_change_respects_configuration(monkeypatch):
+    send = mock.Mock()
+    monkeypatch.setattr(daemon, "notify", send)
+
+    daemon.notify_mode_change(True, enabled=True)
+    daemon.notify_mode_change(False, enabled=True)
+    daemon.notify_mode_change(True, enabled=False)
+
+    assert send.call_count == 2
+    assert send.call_args_list[0].args == (
+        "Focus mode enabled; distracting sites are blocked.",
+    )
+    assert send.call_args_list[1].args == (
+        "Free time enabled; distracting sites are available.",
+    )
+
+
+def test_apply_mode_notifies_after_enforcement(monkeypatch):
+    events = []
+    monkeypatch.setattr(daemon, "install_nft_rules", lambda _path: events.append("nft"))
+    monkeypatch.setattr(
+        daemon,
+        "write_dnsmasq_config",
+        lambda _path, _config, _enabled: events.append("dnsmasq"),
+    )
+    monkeypatch.setattr(
+        daemon, "restart_networkmanager", lambda: events.append("networkmanager")
+    )
+    monkeypatch.setattr(
+        daemon,
+        "notify_mode_change",
+        lambda should_block, enabled: events.append(("notify", should_block, enabled)),
+    )
+
+    daemon.apply_mode(Config(notifications=True), should_block=True)
+
+    assert events == ["nft", "dnsmasq", "networkmanager", ("notify", True, True)]
 
 
 def test_setup_logging_disabled_uses_stderr_without_file(tmp_path):
