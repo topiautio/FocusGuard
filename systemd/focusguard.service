@@ -12,7 +12,8 @@ RestartSec=5
 User=root
 NoNewPrivileges=yes
 ProtectSystem=full
-ProtectHome=yes
+# read-only (not yes) keeps /run/user visible for desktop notifications
+ProtectHome=read-only
 RuntimeDirectory=focusguard
 ReadWritePaths=/etc/NetworkManager/dnsmasq.d /etc/nftables.d /var/lib/focusguard /var/log/focusguard
 
