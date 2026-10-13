@@ -17,7 +17,7 @@ def _fake_run_user(monkeypatch, tmp_path, uids=("1000",)):
 
 def test_notify_runs_notify_send_on_user_session_bus(monkeypatch, tmp_path):
     _fake_run_user(monkeypatch, tmp_path)
-    run = mock.Mock()
+    run = mock.Mock(return_value=mock.Mock(returncode=0, stderr=""))
     monkeypatch.setattr(notify_module.subprocess, "run", run)
 
     notify_module.notify("Focus mode enabled")
@@ -40,7 +40,7 @@ def test_notify_skips_system_users(monkeypatch, tmp_path):
 
 def test_notify_is_throttled(monkeypatch, tmp_path):
     _fake_run_user(monkeypatch, tmp_path)
-    run = mock.Mock()
+    run = mock.Mock(return_value=mock.Mock(returncode=0, stderr=""))
     monkeypatch.setattr(notify_module.subprocess, "run", run)
 
     notify_module.notify("one")
@@ -67,3 +67,14 @@ def test_notify_ignores_subprocess_failures(monkeypatch, tmp_path):
     notify_module.notify("Focus mode enabled")
 
     run.assert_called_once()
+
+
+def test_notify_logs_nonzero_exit(monkeypatch, tmp_path, caplog):
+    _fake_run_user(monkeypatch, tmp_path)
+    run = mock.Mock(return_value=mock.Mock(returncode=1, stderr="no bus"))
+    monkeypatch.setattr(notify_module.subprocess, "run", run)
+
+    notify_module.notify("Focus mode enabled")
+
+    assert "exit 1" in caplog.text
+    assert "no bus" in caplog.text

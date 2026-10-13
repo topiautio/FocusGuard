@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import pwd
 import subprocess
 import time
@@ -39,7 +40,7 @@ def notify(message: str, throttle_seconds: int = 30) -> None:
     _LAST = now
     for name, address in _session_buses():
         try:
-            subprocess.run(
+            result = subprocess.run(
                 [
                     "runuser",
                     "-u",
@@ -53,9 +54,17 @@ def notify(message: str, throttle_seconds: int = 30) -> None:
                 ],
                 check=False,
                 timeout=5,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
             )
-        except (OSError, subprocess.SubprocessError):
+        except (OSError, subprocess.SubprocessError) as exc:
             # A missing notification tool must not affect firewall enforcement.
+            logging.warning("notification for %s failed: %s", name, exc)
             continue
+        if result.returncode != 0:
+            logging.warning(
+                "notification for %s failed (exit %s): %s",
+                name,
+                result.returncode,
+                result.stderr.strip(),
+            )
