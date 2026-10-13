@@ -70,9 +70,7 @@ active_days = [
   "tuesday",
   "wednesday",
   "thursday",
-  "friday",
-  "saturday",
-  "sunday"
+  "friday"
 ]
 
 notifications = true
